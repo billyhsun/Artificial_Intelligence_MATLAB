@@ -29,21 +29,85 @@ if isa(score_fun, 'double')
 end
 
 % 1. Do any examples reach this point?
+if isempty(examples)
+    node = TreeNode(parent, {}, examples, true, plurality_value(goal, parent.examples));
+    return
+end
 
 % 2. Or do all examples have same class/label? If so, we're done!
+labels = examples(:,end);
+if all(examples(:,end) == labels(1))
+    node = TreeNode(parent, {}, examples, true, labels(1));
+    return
+end
 
 % 3. No attributes left? Choose the majority class/label.
-
+if isempty(attributes)
+    node = TreeNode(parent, {}, examples, true, plurality_value(goal, examples));
+    return
+end
+    
 % 4. Otherwise, need to choose an attribute to split on, but which one? Loop.
 
     % Best score?
+maxval = -1; 
+maxidx = 0;
+
+for i = 1:size(attributes, 2)
+    val = score_fun(attributes{i}, i, goal, examples); 
+    if val >= maxval
+        maxval = val;
+        maxidx = i;
+    end
+end
 
     % NOTE: To pass the Grader tests, when breaking ties you should always
     % selected the attribute with the smallest (leftmost) column index!
-	     
+         
     % Create new internal node using the best attribute.
+node = TreeNode(parent, attributes{maxidx}, examples, false, NaN);
+node.branches = [];
+maxatt = attributes{maxidx};
 
     % Now, recurse down each branch (operating on a subset of examples below).
+atts = attributes;
+atts(maxidx) = [];
+card = length(maxatt{2})
+
+for i = 1:card
+    relevantex = [];
+    for j = 1:size(examples,1)
+        if examples(j, maxidx) == i
+            if size(relevantex) == 0
+                relevantex = examples(j, :); 
+            else
+                relevantex = [relevantex; examples(j, :)];
+            end
+        end
+    end
+    if size(relevantex,1) ~= 0
+        relevantex(:, maxidx) = [];
+    end
+    subtree = learn_decision_tree(node, atts, goal, relevantex, score_fun);
+    node.branches = [node.branches, subtree];
+end
+
+end
+
+function [relevantex] = gen_new_ex(goal, i, maxidx, examples)
+relevantex = [];
+for j = 1:size(examples, 1)
+    if examples(j, maxidx) == i
+        if size(relevantex) == 0
+            relevantex = examples(j, :); 
+        else
+            relevantex = [relevantex; examples(j, :)];
+        end
+    end
+end
+if size(relevantex,1) ~= 0
+    relevantex(:, maxidx) = [];
+end
 
 end
 

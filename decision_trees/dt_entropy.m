@@ -16,4 +16,19 @@ function [val] = dt_entropy(goal, examples)
 % Insert your code here. Be careful to check the number of examples and
 % with NaN values!
 
+labels = examples(:, end);
+probability = zeros(length(goal{2}), 1);
+
+for i = 1:length(labels)   % Count frequencies
+    probability(labels(i)) = probability(labels(i)) + 1;
+end
+probability = probability / size(examples, 1);  % Normalize
+
+val = 0;
+for i = 1:length(probability)    % Apply formula to find entropy
+    if probability(i) ~= 0
+        val = val - probability(i) * log2(probability(i));
+    end
+end  
+
 end

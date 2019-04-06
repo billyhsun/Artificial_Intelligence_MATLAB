@@ -16,7 +16,11 @@ function [val] = dt_info_gain(attribute, col_idx, goal, examples)
 %  val  - Value of the information gain, given the attribute and examples.
 
 % Insert your code here.
-  
+
+init_entropy = dt_entropy(goal, examples);
+remainder = dt_cond_entropy(attribute, col_idx, goal, examples);
+val = init_entropy - remainder;
+
 % Debug
 % fprintf('Gain for %s is %f\n', attribute{1}, val);
 

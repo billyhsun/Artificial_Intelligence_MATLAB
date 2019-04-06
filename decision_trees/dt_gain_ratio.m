@@ -16,5 +16,7 @@ function [val] = dt_gain_ratio(attribute, col_idx, goal, examples)
 %  val  - Value of the gain ratio, given the attribute and examples.
 
 % Insert your code here.
-   
+
+val = dt_info_gain(attribute, col_idx, goal, examples) / dt_intrinsic_info(attribute, col_idx, examples);
+
 end
